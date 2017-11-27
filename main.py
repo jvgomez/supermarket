@@ -29,6 +29,27 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 
 
+class Item(object):
+    ''' Location given w.r.t. top-left corner.
+    '''
+    def __init__(self, name, location):
+        self.name = name
+        self.location = location
+
+
+class ItemDistribution(object):
+    def __init__(self):
+        self.items = {}
+
+    def add_item(self, item):
+        # TODO check if the item name already exists.
+        self.items[item.name] = item.location
+
+    def show(self):
+        for name, location in self.items.iteritems():
+            print '- ' + name + '\tx: ' + str(location[0]) + '\ty: ' + str(location[1])
+
+
 class ImageViewer(QMainWindow):
     def __init__(self):
         super(ImageViewer, self).__init__()
@@ -63,6 +84,10 @@ class ImageViewer(QMainWindow):
 #        self.imageLabel.emit(SIGNAL('clicked()'))
 
 #        QObject.connect(self.imageLabel, SIGNAL("clicked()"), self.on_image_click)
+
+
+    # Things that should be somewhere else
+        self._items = ItemDistribution()
 
     def open(self):
         if self._open_default:
@@ -203,7 +228,13 @@ class ImageViewer(QMainWindow):
                                 + ((factor - 1) * scrollBar.pageStep()/2)))
 
     def on_image_click(self, event):
-        print str(event.x()) + '  ' + str(event.y()) + '   ' 
+        text, ok = QInputDialog.getText(self, "Enter a new item", "Item name", QLineEdit.Normal)
+        if ok and text:
+            self._items.add_item(Item(text, [event.x(), event.y()]))
+
+
+        self._items.show()
+
 
 
 if __name__ == '__main__':
